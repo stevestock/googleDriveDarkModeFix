@@ -1,0 +1,62 @@
+#!/bin/bash
+
+function swap_file {
+    TMPFILE=‘mktemp‘ || exit 1
+
+    mv $1 $TMPFILE
+    mv $2 $1
+    mv $TMPFILE $2
+}
+
+function swap_files {
+    swap_file $1.png $1-inverse.png
+    swap_file $1@2x.png $1-inverse@2x.png
+}
+
+function nice_quit {
+osascript <<EOF
+tell application "$*" to quit
+EOF
+}
+
+if pgrep 'Google Drive' > /dev/null
+then
+    nice_quit 'Google Drive'
+
+    #Close App and wait until process disappears
+    echo -n 'Closing Google Drive...'
+    while pgrep 'Google Drive' > /dev/null
+    do
+        sleep 1
+        echo -n '.'
+    done
+
+    echo 'Closed'
+fi
+
+FILES="mac-animate1
+mac-animate2
+mac-animate3
+mac-animate4
+mac-animate5
+mac-animate6
+mac-animate7
+mac-animate8
+mac-error
+mac-inactive
+mac-normal
+mac-paused"
+
+cd '/Applications/Google Drive.app/Contents/Resources/'
+
+echo -n 'Swapping Files...'
+for file in $FILES
+do
+    swap_files $file
+    echo -n '.'
+done
+echo 'Done'
+
+echo -n 'Opening Google Drive...'
+open '/Applications/Google Drive.app'
+echo 'Open'
